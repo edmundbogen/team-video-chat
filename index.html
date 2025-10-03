@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Video Chat - Edmund Bogen Team</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: #4169E1;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .room-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .room-code {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .video-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .videos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .control-btn.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .control-btn.inactive {
+            background: #dc3545;
+            color: white;
+        }
+
+        .control-btn.primary {
+            background: #4169E1;
+            color: white;
+        }
+
+        .control-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .whiteboard-panel {
+            width: 350px;
+            background: white;
+            border-left: 1px solid #ddd;
+            display: none;
+            flex-direction: column;
+        }
+
+        .whiteboard-panel.active {
+            display: flex;
+        }
+
+        .whiteboard-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .whiteboard-tools {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tool-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover, .tool-btn.active {
+            background: #4169E1;
+            color: white;
+            border-color: #4169E1;
+        }
+
+        .whiteboard-canvas {
+            flex: 1;
+            border: none;
+            cursor: crosshair;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+
+        .status-dot.connected {
+            background: #4CAF50;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #4169E1;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4169E1;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        #localVideo {
+            transform: scaleX(-1);
+        }
+
+        .screen-share-container {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 100;
+            max-width: 90%;
+            max-height: 80%;
+        }
+
+        .screen-share-container.active {
+            display: block;
+        }
+
+        #screenVideo {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎥 Edmund Bogen Team - Video Chat</h1>
+            <div class="room-info">
+                <div class="connection-status">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Disconnected</span>
+                </div>
+                <div class="room-code" id="roomCode">No Room</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="video-container">
+                <div class="videos">
+                    <div class="video-wrapper">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="video-label">You</div>
+                    </div>
+                    <div class="video-wrapper">
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <div class="video-label">Remote User</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn active" id="micBtn">
+                        🎤 Mute
+                    </button>
+                    <button class="control-btn active" id="videoBtn">
+                        📹 Stop Video
+                    </button>
+                    <button class="control-btn primary" id="shareScreenBtn">
+                        🖥️ Share Screen
+                    </button>
+                    <button class="control-btn primary" id="whiteboardBtn">
+                        📝 Whiteboard
+                    </button>
+                    <button class="control-btn secondary" id="endCallBtn">
+                        📞 End Call
+                    </button>
+                </div>
+            </div>
+
+            <div class="whiteboard-panel" id="whiteboardPanel">
+                <div class="whiteboard-header">
+                    <h3>Whiteboard</h3>
+                    <button class="tool-btn" id="closeWhiteboardBtn">✕</button>
+                </div>
+                <div class="whiteboard-tools">
+                    <button class="tool-btn active" data-tool="pen">✏️ Pen</button>
+                    <button class="tool-btn" data-tool="eraser">🧹 Eraser</button>
+                    <button class="tool-btn" data-tool="line">📏 Line</button>
+                    <button class="tool-btn" data-tool="rect">⬜ Rectangle</button>
+                    <button class="tool-btn" data-tool="circle">⭕ Circle</button>
+                    <input type="color" id="colorPicker" value="#000000" title="Color">
+                    <input type="range" id="brushSize" min="1" max="20" value="3" title="Brush Size">
+                    <button class="tool-btn" id="clearCanvas">🗑️ Clear</button>
+                </div>
+                <canvas class="whiteboard-canvas" id="whiteboardCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen-share-container" id="screenShareContainer">
+        <video id="screenVideo" autoplay playsinline></video>
+        <button class="control-btn inactive" id="stopScreenShareBtn" style="margin-top: 10px; width: 100%;">
+            Stop Sharing
+        </button>
+    </div>
+
+    <div class="modal active" id="joinModal">
+        <div class="modal-content">
+            <h2>Join or Create Room</h2>
+            <div class="input-group">
+                <label for="userName">Your Name</label>
+                <input type="text" id="userName" placeholder="Enter your name" value="Edmund">
+            </div>
+            <div class="input-group">
+                <label for="roomId">Room Code (leave empty to create new)</label>
+                <input type="text" id="roomId" placeholder="Enter room code or leave empty">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="joinBtn">Join / Create Room</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
