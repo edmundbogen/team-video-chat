@@ -127,28 +127,57 @@ team-video-chat/
 
 ## Deployment
 
-### Local Network
-The app works on your local network. Just use your computer's IP address:
-```
-http://YOUR_IP_ADDRESS:3000
+### 🚀 Quick Deploy to Render (FREE - Recommended)
+
+**Render provides free hosting with HTTPS built-in!**
+
+1. **Go to**: https://render.com
+2. **Sign up** (free account)
+3. Click **"New +"** → **"Web Service"**
+4. Connect your GitHub account
+5. Select the **team-video-chat** repository
+6. Render will auto-detect the settings from `render.yaml`
+7. Click **"Create Web Service"**
+8. Wait 2-3 minutes for deployment
+9. **Share your URL**: `https://team-video-chat-XXXXX.onrender.com`
+
+✅ **Done!** Your team can now access it from anywhere with HTTPS!
+
+### 🌐 Alternative: Deploy to Railway (FREE)
+
+1. **Go to**: https://railway.app
+2. Click **"Start a New Project"**
+3. Select **"Deploy from GitHub repo"**
+4. Choose **team-video-chat**
+5. Click **"Deploy Now"**
+6. Get your URL and share with team
+
+### 💻 Local Network (No Deployment)
+
+For testing on your local network:
+```bash
+# Find your IP address
+ifconfig | grep "inet " | grep -v 127.0.0.1
+
+# Share this URL with team members on same network:
+http://YOUR_IP:3000
 ```
 
-### Production Deployment
-
-For production use, consider:
+### ⚠️ Important Notes for Web Deployment
 
 1. **HTTPS Required**: WebRTC requires HTTPS in production
-   - Get SSL certificate (Let's Encrypt)
-   - Configure HTTPS in server.js
+   - Render and Railway provide this automatically ✅
+   - GitHub Pages won't work (needs Node.js server)
 
-2. **TURN Server**: For users behind strict firewalls
-   - Add TURN server to ICE configuration
+2. **Free Tier Limitations:**
+   - Render: App sleeps after 15 min of inactivity (takes ~30s to wake up)
+   - Railway: 500 hours/month free
+   - Both have HTTPS and work great for team use!
+
+3. **TURN Server** (Optional - for strict firewalls):
+   - Most users work fine with just STUN
+   - If connections fail, add TURN server
    - Options: Twilio, Xirsys, or self-hosted coturn
-
-3. **Hosting Options:**
-   - Heroku, DigitalOcean, AWS, etc.
-   - Set PORT environment variable
-   - Configure production STUN/TURN servers
 
 ## Browser Compatibility
 
